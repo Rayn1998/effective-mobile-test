@@ -3,8 +3,8 @@ const { Joi } = require('celebrate')
 const good_creation_validation = {
     body: Joi.object().keys({
         plu: Joi.number().required(),
-        amount: Joi.number().required(),
-        shop: Joi.string().required(),
+        name: Joi.string().required(),
+        amount_in_order: Joi.number().required(),
     })
 }
 

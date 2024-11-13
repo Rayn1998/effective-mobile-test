@@ -1,14 +1,18 @@
 const mongoose = require("mongoose")
 
 const remainder_schema = new mongoose.Schema({
-    shop: {
-        type: String,
-        required: true,
-    },
-    amount: {
-        type: Number,
-        requireq: true,
-    },
+    quantity: [
+        {
+            shop: {
+                type: String,
+                required: true,
+            },
+            amount: {
+                type: Number,
+                required: true,
+            }
+        }
+    ],
     plu: {
         type: Number,
         required: true,

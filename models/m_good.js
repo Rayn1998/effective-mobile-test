@@ -10,7 +10,7 @@ const good_schema = new mongoose.Schema({
         required: true,
     },
     amount_on_shelf: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'remainder'
+        type: mongoose.Schema.Types.ObjectId, ref: "remainder", required: true
     },
     amount_in_order: {
         type: Number,
