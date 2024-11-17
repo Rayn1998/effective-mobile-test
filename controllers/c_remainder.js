@@ -8,8 +8,25 @@ const create_remainder = async (req, res) => {
     try {
         const exists = await Remainder.findOne({ plu })
         if (exists) {
-            res.status(200).send(exists)
-            return
+            if (exists.quantity.some(el => el.shop === req.body.quantity.shop)) {
+                res.status(200).send(exists)
+                return
+            } else {
+                exists.quantity.push(req.body.quantity)
+                await exists.save()
+                res.status(200).send(exists)
+                try {
+                    await History.create({
+                        shop_id: req.body.quantity.shop,
+                        action: "create remainder",
+                        plu,
+                        date: new Date().toISOString(),
+                    })
+                } catch (historyErr) {
+                    console.error("Error sending history event:", historyErr.message);
+                }
+                return
+            }
         } else {
             const remainder = await Remainder.create(remainder_data)
             if (remainder) {
