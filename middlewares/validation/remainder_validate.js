@@ -3,7 +3,10 @@ const { Joi } = require('celebrate')
 const remainder_creation_validation = {
     body: Joi.object().keys({
         plu: Joi.number().required(),
-        quantity: Joi.array().required(),
+        quantity: {
+            shop: Joi.string().required(),
+            amount: Joi.number().required()
+        },
     })
 }
 

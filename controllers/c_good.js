@@ -28,6 +28,29 @@ const create_good = async (req, res) => {
     }
 }
 
+const update_good_name_or_amount_in_order = async (req, res) => {
+    const { plu, name, amount_in_order } =  req.body
+    console.log(plu, name, amount_in_order)
+
+    try {
+        const good = await Good.findOne({ plu })
+
+        console.log(good)
+
+        if (good) {
+            good.name = name
+            good.amount_in_order = amount_in_order
+            await good.save()
+            res.status(200).send(good)
+            return
+        } else {
+            res.status(401).send("There is no such good in storage")
+        } 
+    } catch (err) {
+        res.status(500).send(err)
+    }
+}
+
 const get_goods = async (_, res) => {
     let goods
     try {
@@ -92,5 +115,6 @@ module.exports = {
     create_good,
     get_goods,
     get_filtered_goods,
-    filter_goods_only_by_amount_in_order
+    filter_goods_only_by_amount_in_order,
+    update_good_name_or_amount_in_order
 }

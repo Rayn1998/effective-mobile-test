@@ -8,7 +8,7 @@ const app = express()
 app.use('/', router)
 
 mongoose
-    .connect("mongodb://localhost:27017/effective-mobile-test")
+    .connect("mongodb://127.0.0.1:27017/effective-mobile-test")
     .then(
         () =>
             app.listen(3000, () => {

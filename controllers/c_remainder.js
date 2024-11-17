@@ -1,4 +1,5 @@
 const Remainder = require("../models/m_remainders")
+const send_history = require("../controllers/c_history")
 
 const create_remainder = async (req, res) => {
     const { plu } = req.body
@@ -10,9 +11,12 @@ const create_remainder = async (req, res) => {
             res.status(200).send(exists)
         } else {
             const remainder = await Remainder.create(remainder_data)
-
             if (remainder) {
                 res.status(200).send(remainder)
+                await send_history({ 
+                    shop_id: req.body.quantity.shop,
+                    action: "create"
+                })
             } else {
                 res.status(500).send("Error, creating new remainder")
             }
@@ -28,15 +32,14 @@ const update_remainder = async (req, res) => {
         const remainder = await Remainder.findOne({ plu })
 
         if (remainder) {
-            remainder.quantity.some(existed_element => {
-                quantity.some(new_element => {
-                    if (new_element.shop === existed_element.shop) {
-                        existed_element.amount = new_element.amount
-                    } else {
-                        remainder.quantity.push(new_element)
-                    }
-                })
+            let exist = remainder.quantity.findIndex(existed_element => {
+                return quantity.shop === existed_element.shop 
             })
+            if (exist >= 0) {
+                remainder.quantity[exist].amount = quantity.amount 
+            } else {
+                remainder.quantity.push(quantity)
+            }
             await remainder.save()
             res.status(200).send(remainder)
         } else {
