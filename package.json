@@ -12,7 +12,8 @@
     "delay": "2"
   },
   "scripts": {
-    "start:all": "concurrently \"nodemon app.js\" \"nodemon history.js\" "
+    "start:all": "concurrently \"nodemon app.js\" \"nodemon history.js\" ",
+    "start": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -22,8 +23,5 @@
     "express": "^4.21.1",
     "joi": "^17.13.3",
     "mongoose": "^8.8.1"
-  },
-  "devDependencies": {
-    "concurrently": "^9.1.0"
   }
 }

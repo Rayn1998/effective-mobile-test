@@ -1,5 +1,5 @@
 const Remainder = require("../models/m_remainders")
-const send_history = require("../controllers/c_history")
+const History = require("../models/m_history")
 
 const create_remainder = async (req, res) => {
     const { plu } = req.body
@@ -9,14 +9,21 @@ const create_remainder = async (req, res) => {
         const exists = await Remainder.findOne({ plu })
         if (exists) {
             res.status(200).send(exists)
+            return
         } else {
             const remainder = await Remainder.create(remainder_data)
             if (remainder) {
                 res.status(200).send(remainder)
-                await send_history({ 
-                    shop_id: req.body.quantity.shop,
-                    action: "create"
-                })
+                try {
+                    await History.create({
+                        shop_id: req.body.quantity.shop,
+                        action: "create remainder",
+                        plu,
+                        date: new Date().toISOString(),
+                    })
+                } catch (historyErr) {
+                    console.error("Error sending history event:", historyErr.message);
+                }
             } else {
                 res.status(500).send("Error, creating new remainder")
             }
@@ -28,6 +35,7 @@ const create_remainder = async (req, res) => {
 
 const update_remainder = async (req, res) => {
     const { plu, quantity } = req.body
+    let shop_id = ""
     try {
         const remainder = await Remainder.findOne({ plu })
 
@@ -37,11 +45,23 @@ const update_remainder = async (req, res) => {
             })
             if (exist >= 0) {
                 remainder.quantity[exist].amount = quantity.amount 
+                shop_id = remainder.quantity[exist].shop
             } else {
                 remainder.quantity.push(quantity)
+                shop_id = quantity.shop
             }
             await remainder.save()
             res.status(200).send(remainder)
+            try {
+                await History.create({
+                    shop_id,
+                    action: "update remainder",
+                    plu,
+                    date: new Date().toISOString(),
+                })
+            } catch (historyErr) {
+                console.error("Error sending history event:", historyErr.message);
+            }
         } else {
             res.status(404).send("Error)")
         }
@@ -52,6 +72,7 @@ const update_remainder = async (req, res) => {
 
 const increase_remainder_by_one_or_provided_number = async (req, res) => {
     const { plu, shop, number } = req.body
+    let shop_id = ""
     try {
         const remainder = await Remainder.findOne({ plu })
         if (remainder) {
@@ -62,6 +83,7 @@ const increase_remainder_by_one_or_provided_number = async (req, res) => {
                     } else {
                         arr_element.amount++
                     }
+                    shop_id = arr_element.shop
                 }
             })
         } else {
@@ -69,6 +91,16 @@ const increase_remainder_by_one_or_provided_number = async (req, res) => {
         }
         await remainder.save()
         res.status(200).send(remainder)
+        try {
+            await History.create({
+                shop_id,
+                action: "update remainder amount",
+                plu,
+                date: new Date().toISOString(),
+            })
+        } catch (historyErr) {
+            console.error("Error sending history event:", historyErr.message);
+        }
     } catch (err) {
         res.status(500).send(err)
     }
@@ -76,6 +108,7 @@ const increase_remainder_by_one_or_provided_number = async (req, res) => {
 
 const decrease_remainder_by_one_or_provided_number = async (req, res) => {
     const { plu, shop, number } = req.body
+    let shop_id = ""
     try {
         const remainder = await Remainder.findOne({ plu })
         if (remainder) {
@@ -86,6 +119,7 @@ const decrease_remainder_by_one_or_provided_number = async (req, res) => {
                     } else {
                         arr_element.amount--
                     }
+                    shop_id = arr_element.shop
                 }
             })
         } else {
@@ -93,6 +127,16 @@ const decrease_remainder_by_one_or_provided_number = async (req, res) => {
         }
         await remainder.save()
         res.status(200).send(remainder)
+        try {
+            await History.create({
+                shop_id,
+                action: "update remainder amount",
+                plu,
+                date: new Date().toISOString(),
+            })
+        } catch (historyErr) {
+            console.error("Error sending history event:", historyErr.message);
+        }
     } catch (err) {
         res.status(500).send(err)
     }

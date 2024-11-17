@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
 
+const history_connection = mongoose
+    .createConnection("mongodb://127.0.0.1:27017/effective-mobile-test-history")
+
 const history_schema = new mongoose.Schema({
     shop_id: {
         type: String, 
@@ -19,4 +22,5 @@ const history_schema = new mongoose.Schema({
     },
 })
 
-module.exports = mongoose.model("history", history_schema)
+const History = history_connection.model("history", history_schema)
+module.exports = History

@@ -1,8 +1,9 @@
 const Good = require("../models/m_good")
 const Remainder = require("../models/m_remainders")
+const History = require("../models/m_history")
 
 const create_good = async (req, res) => {
-    const { plu } = req.body;
+    const { plu, shop } = req.body;
     const good_data = { ...req.body }
     try {
         const exists = await Good.findOne({ plu })
@@ -19,6 +20,16 @@ const create_good = async (req, res) => {
             const good = await Good.create(good_data)
             if (good) {
                 res.status(200).send(good)
+                try {
+                    await History.create({
+                        shop_id: shop,
+                        action: "create good",
+                        plu,
+                        date: new Date().toISOString(),
+                    })
+                } catch (historyErr) {
+                    console.error("Error sending history event:", historyErr.message);
+                }
             } else {
                 res.status(500).send("Error, creating new good")
             }
@@ -29,19 +40,29 @@ const create_good = async (req, res) => {
 }
 
 const update_good_name_or_amount_in_order = async (req, res) => {
-    const { plu, name, amount_in_order } =  req.body
-    console.log(plu, name, amount_in_order)
+    const { plu, name, amount_in_order, shop } =  req.body
+    let shop_id = ""
+    if (shop !== undefined) shop_id = shop
 
     try {
         const good = await Good.findOne({ plu })
 
-        console.log(good)
-
         if (good) {
             good.name = name
             good.amount_in_order = amount_in_order
+            shop_id = good.shop
             await good.save()
             res.status(200).send(good)
+            try {
+                await History.create({
+                    shop_id,
+                    action: "update good",
+                    plu,
+                    date: new Date().toISOString(),
+                })
+            } catch (historyErr) {
+                console.error("Error sending history event:", historyErr.message);
+            }
             return
         } else {
             res.status(401).send("There is no such good in storage")

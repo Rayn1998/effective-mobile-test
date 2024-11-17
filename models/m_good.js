@@ -16,6 +16,10 @@ const good_schema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    shop: {
+        type: String,
+        required: true
+    },
 })
 
 module.exports = mongoose.model("good", good_schema)

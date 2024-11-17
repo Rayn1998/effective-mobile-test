@@ -5,6 +5,7 @@ const good_creation_validation = {
         plu: Joi.number().required(),
         name: Joi.string().required(),
         amount_in_order: Joi.number().required(),
+        shop: Joi.string().required(),
     })
 }
 

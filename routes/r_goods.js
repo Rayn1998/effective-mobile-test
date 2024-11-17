@@ -1,7 +1,6 @@
 const goods = require('express').Router()
 const { celebrate } = require('celebrate')
 
-// Controllers
 const {
     create_good,
     get_goods,
@@ -10,10 +9,8 @@ const {
     update_good_name_or_amount_in_order
 } = require('../controllers/c_good')
 
-// Validation
 const good_creation_validation = require('../middlewares/validation/good_validate')
 
-// Routes
 goods.get('/', get_goods)
 goods.patch('/', update_good_name_or_amount_in_order)
 goods.get('/filter', get_filtered_goods)
